@@ -38,13 +38,18 @@ class PSSMdecoy(object):
 
             # get the one letter resiude
             seq = ''
+            count = 0
             for r in res:
                 seq += self.Three2OneDict[r[1]]
+                count += 1
+                if count == 79:
+                    seq += '\n'
+                    count = 0
 
             # write the file
             fname = os.path.join(outdir,self.caseID + '_%s' %c + '.fasta')
             f = open(fname,'w')
-            f.write('>%s' %self.caseID + '_%s' %c)
+            f.write('>%s' %self.caseID + '_%s\n' %c)
             f.write(seq)
             f.close()
         sqldb.close()

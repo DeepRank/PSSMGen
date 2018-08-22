@@ -26,7 +26,7 @@ class PSSMdecoy(object):
     def get_fasta(self,chain=['A','B'],outdir='./fasta/'):
 
         outdir = os.path.join(self.caseID,outdir)
-        if not os.path.isfile(outdir):
+        if not os.path.isdir(outdir):
             os.mkdir(outdir)
 
         pdb = os.path.join(os.path.join(self.caseID,self.pdbdir),self.pdbs[0])
@@ -57,7 +57,7 @@ class PSSMdecoy(object):
 
         fasta_dir = os.path.join(self.caseID,fasta_dir)
         outdir = os.path.join(self.caseID,outdir)
-        if not os.path.isfile(outdir):
+        if not os.path.isdir(outdir):
             os.mkdir(outdir)
 
         for q in os.listdir(fasta_dir):
@@ -89,7 +89,7 @@ class PSSMdecoy(object):
 
         pssm_dir = os.path.join(self.caseID,pssm_dir)
         outdir = os.path.join(self.caseID,outdir)
-        if not os.path.isfile(outdir):
+        if not os.path.isdir(outdir):
             os.mkdir(outdir)
 
         pf = os.listdir(pssm_dir)

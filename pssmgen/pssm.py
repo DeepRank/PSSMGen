@@ -75,10 +75,13 @@ class PSSMdecoy(object):
                                save_each_pssm=True,
                                num_iterations=3,
                                save_pssm_after_last_round=True,
-                               out_ascii_pssm=name + '.pssm',
-                               out_pssm = name + '.cptpssm',
-                               out = name + '.xml',
+                               out_ascii_pssm= os.path.join(outdir,name + '.pssm'),
+                               out_pssm = os.path.join(outdir,name + '.cptpssm'),
+                               out = os.path.join(outdir,name + '.xml')
                                )
+
+            print(psi_cline._validate())
+            psi_cline()
 
             name = os.path.split(os.path.basename(query))[0] + '.pssm'
             out = os.path.join(outdir,name)

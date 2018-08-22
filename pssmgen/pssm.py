@@ -80,7 +80,7 @@ class PSSMdecoy(object):
                                out = name + '.xml',
                                )
 
-            name = os.path.split(os.path.basename(query))[0] = '.pssm'
+            name = os.path.split(os.path.basename(query))[0] + '.pssm'
             out = os.path.join(outdir,name)
             shutil.copy2(name+ '.pssm.3', out)
 

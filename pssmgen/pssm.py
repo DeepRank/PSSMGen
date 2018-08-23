@@ -99,7 +99,8 @@ class PSSMdecoy(object):
                  blast = '/home/clgeng/software/blast/bin/psiblast',
                  db = '/data/lixue/DBs/blast_dbs/nr_v20180204/nr',
                  outdir='pssm_raw/',
-                 num_iterations=3,run=True):
+                 num_iterations=3,
+                 run=True):
 
         """Compute the PSSM files
 

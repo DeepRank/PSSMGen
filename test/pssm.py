@@ -4,10 +4,10 @@ from pssmgen.pssm import PSSMdecoy
 gen = PSSMdecoy('1AK4')
 
 # generates the FASTA query
-gen.get_fasta()
+#gen.get_fasta()
 
 # generates the PSSM
-#gen.get_pssm()
+#gen.get_pssm(run=False)
 
 # map the pssm to the pdb
-gen.map_pssm()
+#gen.map_pssm()

@@ -9,11 +9,13 @@ The only dependency is `pdb2sql`.Then clone the repo and use `pip install -e ./`
 ## Use
 So far the class `PSSMdecoy` is geared toward computing the pssm files for all the decoy of a particular case. The code assumes the following structure of the data:
 
+```
  caseID
  |_ pdb
  |_ fasta
  |_ pssm_raw
  |_ pssm
+```
 
 only the pdb dir must exist at run time. This directory must contain the pdb files of the decoys generated for example by HADDOCK or ZDOCK. Based on these pdbs, the code will generate the fasta queries (stored in the `fasta` subdir). It will then use `psiblast` to compute the PSSM files (stored in `pssm_raw` subdir), Finally it will allign the PSSM files to the pdb sequences and store the final PSSM files in `pssm`.
 

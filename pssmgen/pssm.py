@@ -47,6 +47,14 @@ class PSSMdecoy(object):
 
         self.Three2OneDict = {v: k for k, v in self.One2ThreeDict.items()}
 
+        self.psiblast_parameter = {
+        0 : { 'wordSize':2, 'gapOpen':9,  'gapExtend':1, 'scoringMatrix':'PAM30' },
+        1 : { 'wordSize':3, 'gapOpen':9,  'gapExtend':1, 'scoringMatrix':'PAM30' },
+        2 : { 'wordSize':3, 'gapOpen':10, 'gapExtend':1, 'scoringMatrix':'PAM70' },
+        3 : { 'wordSize':3, 'gapOpen':10, 'gapExtend':1, 'scoringMatrix':'BLOSUM80'},
+        4 : { 'wordSize':3, 'gapOpen':11, 'gapExtend':1, 'scoringMatrix':'BLOSUM62'}
+        }
+
 
     def get_fasta(self,chain=['A','B'],outdir='./fasta/'):
 
@@ -91,7 +99,7 @@ class PSSMdecoy(object):
                  blast = '/home/clgeng/software/blast/bin/psiblast',
                  db = '/data/lixue/DBs/blast_dbs/nr_v20180204/nr',
                  outdir='./pssm_raw/',
-                 num_iterations=3):
+                 num_iterations=3,run=True):
 
         """Compute the PSSM files
 
@@ -108,6 +116,12 @@ class PSSMdecoy(object):
         if not os.path.isdir(outdir):
             os.mkdir(outdir)
 
+        out_fmt = '7 qseqid qgi qacc qaccver qlen sseqid sallseqid sgi sallgi   ,\
+                   sacc saccver sallacc slen qstart qend sstart send qseq sseq  ,\
+                   evalue bitscore score length pident nident mismatch positive ,\
+                   gapopen gaps ppos frames qframe sframe btop staxids stitle   ,\
+                   salltitles sstrand qcovs qcovhsp qcovus'
+
         for q in os.listdir(fasta_dir):
 
             # get the fasta quey
@@ -119,14 +133,22 @@ class PSSMdecoy(object):
             out_pssm = os.path.join(outdir,name + '.cptpssm')
             out_xml = os.path.join(outdir,name + '.xml')
 
+            # get the parameters
+            blast_param = self._get_psiblast_parameters(query)
+
             # set up the psiblast calculation
             psi_cline = NcbipsiblastCommandline(
                                blast,
                                db = db,
                                query = query,
                                evalue = 0.0001,
-                               matrix='BLOSUM62',
-                               outfmt = 7,
+                               word_size = blast_param['wordSize'],
+                               gapopen = blast_param['gapOpen'],
+                               gapextend = blast_param['gapExtend'],
+                               matrix = blast_param['scoringMatrix'],
+                               outfmt = out_fmt,
+                               comp_based_stats = 'T',
+                               max_target_seqs = 2000,
                                save_each_pssm=True,
                                num_iterations=num_iterations,
                                save_pssm_after_last_round=True,
@@ -134,21 +156,46 @@ class PSSMdecoy(object):
                                out_pssm = out_pssm,
                                out = out_xml
                                )
+
             # check that it's correct
             psi_cline._validate()
 
-            # run the blast query
-            psi_cline()
+            if run:
 
-            # copyt the final pssm to its final name
-            shutil.copy2(out_ascii_pssm + '.%d' %num_iterations, out_ascii_pssm)
+                # run the blast query
+                psi_cline()
 
-            # remove all the other files
-            for filename in glob.glob(out_pssm+'.*'):
-                os.remove(filename)
-            for filename in glob.glob(out_ascii_pssm+'.*'):
-                os.remove(filename)
-            os.remove(out_xml)
+                # copyt the final pssm to its final name
+                shutil.copy2(out_ascii_pssm + '.%d' %num_iterations, out_ascii_pssm)
+
+                # remove all the other files
+                for filename in glob.glob(out_pssm+'.*'):
+                    os.remove(filename)
+                for filename in glob.glob(out_ascii_pssm+'.*'):
+                    os.remove(filename)
+                os.remove(out_xml)
+
+
+    def _get_psiblast_parameters(self,fasta_query):
+
+        f = open(fasta_query)
+        data =f.readlines()
+        f.close()
+
+        seq = 0
+        for l in data[1:]:
+            seq += len(l)
+
+        if seq < 30:
+            return self.psiblast_parameter[0]
+        elif seq < 35:
+            return self.psiblast_parameter[1]
+        elif seq < 50:
+            return self.psiblast_parameter[2]
+        elif seq < 85:
+            return self.psiblast_parameter[3]
+        else:
+            return self.psiblast_parameter[4]
 
     def map_pssm(self,pssm_dir='pssm_raw',outdir='pssm',chain=['A','B']):
 
@@ -173,6 +220,5 @@ class PSSMdecoy(object):
             pdb = os.path.join(os.path.join(self.caseID,self.pdbdir),p)
             for c in chain:
                 pssm = os.path.join(pssm_dir,pssm_files[c])
-                print(pssm)
                 write_mapped_pssm_pdb(pssm, pdb, c, outdir)
 

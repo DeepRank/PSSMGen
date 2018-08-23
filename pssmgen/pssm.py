@@ -6,7 +6,7 @@ from .map_pssm2pdb import write_mapped_pssm_pdb
 
 class PSSMdecoy(object):
 
-    def __init__(self,caseID,pdbdir='pdb'):
+    def __init__(self,caseID='',pdbdir='pdb'):
 
         """Compute the PSSM and map the the sequence for a series of decoys.
 
@@ -95,10 +95,10 @@ class PSSMdecoy(object):
         sqldb.close()
 
 
-    def get_pssm(self,fasta_dir='./fasta/',
+    def get_pssm(self,fasta_dir='fasta/',
                  blast = '/home/clgeng/software/blast/bin/psiblast',
                  db = '/data/lixue/DBs/blast_dbs/nr_v20180204/nr',
-                 outdir='./pssm_raw/',
+                 outdir='pssm_raw/',
                  num_iterations=3,run=True):
 
         """Compute the PSSM files
@@ -146,7 +146,7 @@ class PSSMdecoy(object):
                                gapopen = blast_param['gapOpen'],
                                gapextend = blast_param['gapExtend'],
                                matrix = blast_param['scoringMatrix'],
-                               outfmt = out_fmt,
+                               outfmt = 7, #out_fmt,
                                comp_based_stats = 'T',
                                max_target_seqs = 2000,
                                save_each_pssm=True,

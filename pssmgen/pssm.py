@@ -70,6 +70,10 @@ class PSSMdecoy(object):
             query = os.path.join(fasta_dir,q)
             name = os.path.splitext(os.path.basename(query))[0]
 
+            out_ascii_pssm = os.path.join(outdir,name + '.pssm')
+            out_pssm = os.path.join(outdir,name + '.cptpssm')
+            out_xml = os.path.join(outdir,name + '.xml')
+
             psi_cline = NcbipsiblastCommandline(
                                blast,
                                db = db,
@@ -80,17 +84,14 @@ class PSSMdecoy(object):
                                save_each_pssm=True,
                                num_iterations=3,
                                save_pssm_after_last_round=True,
-                               out_ascii_pssm= os.path.join(outdir,name + '.pssm'),
-                               out_pssm = os.path.join(outdir,name + '.cptpssm'),
-                               out = os.path.join(outdir,name + '.xml')
+                               out_ascii_pssm = out_ascii_pssm,
+                               out_pssm = out_pssm,
+                               out = out_xml
                                )
 
             print(psi_cline._validate())
             psi_cline()
-
-            name = os.path.split(os.path.basename(query))[0] + '.pssm'
-            out = os.path.join(outdir,name)
-            shutil.copy2(name+ '.pssm.3', out)
+            shutil.copy2(out_ascii_pssm + '.3', out_ascii_pssm)
 
 
     def map_pssm(self,pssm_dir='pssm_raw',outdir='pssm',chain=['A','B']):

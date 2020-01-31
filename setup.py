@@ -12,7 +12,8 @@ setup(
     install_requires=[
         'numpy >= 1.13',
         'scipy',
-        'biopython'],
+        'biopython',
+        'pdb2sql'],
         #'tarfiles',
         #'pickle'],
 

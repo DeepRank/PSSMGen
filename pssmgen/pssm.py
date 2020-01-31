@@ -2,7 +2,7 @@ import os, glob, shutil
 from Bio.Blast.Applications import NcbipsiblastCommandline
 from pdb2sql import pdb2sql
 
-from iScore.pssm.map_pssm2pdb import write_mapped_pssm_pdb
+from pssmgen.map_pssm2pdb import write_mapped_pssm_pdb
 
 
 class PSSM(object):
@@ -18,7 +18,7 @@ class PSSM(object):
         Example:
 
         >>> # import the module
-        >>> from iScore.pssm.pssm import PSSM
+        >>> from pssmgen import PSSM
         >>>
         >>> # create ab instance
         >>> gen = PSSM('1AK4',pdbdir='water')
@@ -35,7 +35,6 @@ class PSSM(object):
         >>>
         >>> # map the pssm to the pdb
         >>> gen.map_pssm()
-
         """
 
         self.caseID = caseID
@@ -169,7 +168,8 @@ class PSSM(object):
                                save_pssm_after_last_round=True,
                                out_ascii_pssm = out_ascii_pssm,
                                out_pssm = out_pssm,
-                               out = out_xml
+                               out = out_xml,
+                               num_threads = 4
                                )
 
             # check that it's correct

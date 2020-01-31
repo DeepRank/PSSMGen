@@ -1,10 +1,11 @@
 import os, glob, shutil
 from Bio.Blast.Applications import NcbipsiblastCommandline
-from pdb2sql.pdb2sqlcore import pdb2sql
-from .map_pssm2pdb import write_mapped_pssm_pdb
+from pdb2sql import pdb2sql
+
+from iScore.pssm.map_pssm2pdb import write_mapped_pssm_pdb
 
 
-class PSSMdecoy(object):
+class PSSM(object):
 
     def __init__(self,caseID='',pdbdir='pdb'):
 
@@ -17,10 +18,14 @@ class PSSMdecoy(object):
         Example:
 
         >>> # import the module
-        >>> from pssmgen.pssm import PSSMdecoy
+        >>> from iScore.pssm.pssm import PSSM
         >>>
         >>> # create ab instance
-        >>> gen = PSSMdecoy('1AK4',pdbdir='water')
+        >>> gen = PSSM('1AK4',pdbdir='water')
+        >>>
+        >>> # configure the generator
+        >>> gen.configure(blast='/home/software/blast/bin/psiblast',
+                         database='/data/DBs/blast_dbs/nr_v20180204/nr')
         >>>
         >>> # generates the FASTA query
         >>> gen.get_fasta()
@@ -95,9 +100,18 @@ class PSSMdecoy(object):
         sqldb.close()
 
 
+    def configure(self,blast=None,database=None):
+        """Configure the blast executable and database.
+
+        Args:
+            blast (string) : Path to the psiblast executable
+            database (string) : Path to the Blast database
+        """
+
+        self.blast = blast
+        self.db = database
+
     def get_pssm(self,fasta_dir='fasta/',
-                 blast = '/home/clgeng/software/blast/bin/psiblast',
-                 db = '/data/lixue/DBs/blast_dbs/nr_v20180204/nr',
                  outdir='pssm_raw/',
                  num_iterations=3,
                  run=True):
@@ -139,8 +153,8 @@ class PSSMdecoy(object):
 
             # set up the psiblast calculation
             psi_cline = NcbipsiblastCommandline(
-                               blast,
-                               db = db,
+                               self.blast,
+                               db = self.db,
                                query = query,
                                evalue = 0.0001,
                                word_size = blast_param['wordSize'],
@@ -222,4 +236,3 @@ class PSSMdecoy(object):
             for c in chain:
                 pssm = os.path.join(pssm_dir,pssm_files[c])
                 write_mapped_pssm_pdb(pssm, pdb, c, outdir)
-

@@ -11,7 +11,8 @@ setup(
 
     install_requires=[
         'numpy >= 1.13',
-        'scipy'],
+        'scipy',
+        'biopython'],
         #'tarfiles',
         #'pickle'],
 

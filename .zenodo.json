@@ -1,0 +1,27 @@
+{
+   "creators": [
+      {
+         "affiliation": "Netherlands eScience Center",
+         "name": "Renaud, Nicolas",
+         "orcid": "0000-0001-9589-2694"
+      },
+      {
+         "affiliation": "Netherlands eScience Center",
+         "name": "Geng, Cunliang",
+         "orcid": "0000-0002-1409-8358"
+      }
+   ],
+   "description": "Generates consistent PSSM and/or PDB files for protein-protein complexes",
+   "keywords": [
+      "pssm",
+      "pdb",
+      "protein-protein complex",
+      "docking",
+      "bioinformatics",
+      "CAPRI"
+   ],
+   "license": {
+      "id": "Apache-2.0"
+   },
+   "title": "PSSMGen"
+}

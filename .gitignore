@@ -1,0 +1,5 @@
+*__pycache__*
+*sublime.*
+*.egg-info
+.vscode/*
+.DS_Store

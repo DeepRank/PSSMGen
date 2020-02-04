@@ -10,7 +10,7 @@ with open(os.path.join(cwd, 'pssmgen', '__version__.py')) as f:
 
 setup(
     name='PSSMGen',
-    description='Generates consistent PSSM and/or PDB files for protein-protein complexes'
+    description='Generates consistent PSSM and/or PDB files for protein-protein complexes',
     version=version['__version__'],
     author='Nicolas Renaud, Cunliang Geng',
     author_email='n.renaud@esciencecenter.nl, c.geng@esciencecenter.nl',

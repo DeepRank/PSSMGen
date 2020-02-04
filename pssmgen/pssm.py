@@ -99,20 +99,48 @@ class PSSM(object):
         sqldb.close()
 
 
-    def configure(self,blast=None,database=None):
-        """Configure the blast executable and database.
+    def configure(self, blast_exe=None, database=None,
+        num_threads = 4, evalue=0.0001, comp_based_stats='T',
+        max_target_seqs=2000, num_iterations=3, outfmt=7,
+        save_each_pssm=True, save_pssm_after_last_round=True
+        )
+        """Configure the blast executable, database and psiblast parameters.
+
+        Notes:
+            For more details about psiblast paramters, check 'psiblast -help'.
 
         Args:
-            blast (string) : Path to the psiblast executable
-            database (string) : Path to the Blast database
+            blast_exe (str): Path to the psiblast executable
+            database (str) : Path to the Blast database
+            num_threads (int): Number of threads (CPUs) to use in the BLAST search
+            evalue (float): Expectation value (E) threshold for saving hits
+            comp_based_stats (str, int): Use composition-based statistics,
+                    0, F or f: no composition-based statistics
+                    2, T or t, D or d : Composition-based score adjustment
+                    as in Bioinformatics 21:902-911, 2005, conditioned on
+                    sequence properties
+            max_target_seqs (int): Maximum number of aligned sequences to keep,
+                    not applicable for outfmt <= 4
+            num_iterations (int): Number of iterations to perform,
+                    0 means run until convergence
+            save_each_pssm (bool): Save PSSM after each iteration
+            save_pssm_after_last_round (bool): Save PSSM after the last database search
         """
 
-        self.blast = blast
-        self.db = database
+        self.blast_exe = blast_exe
+        self.blast_config = {
+            'db': database,
+            'num_threads': num_threads
+            'evalue': evalue,
+            'comp_based_stats': comp_based_stats,
+            'max_target_seqs': max_target_seqs,
+            'num_iterations': num_iterations,
+            'save_each_pssm': save_each_pssm,
+            'save_pssm_after_last_round': save_pssm_after_last_round,
+        }
 
     def get_pssm(self,fasta_dir='fasta/',
                  outdir='pssm_raw/',
-                 num_iterations=3,
                  run=True):
 
         """Compute the PSSM files
@@ -152,24 +180,17 @@ class PSSM(object):
 
             # set up the psiblast calculation
             psi_cline = NcbipsiblastCommandline(
-                               self.blast,
-                               db = self.db,
+                               cmd = self.blast_exe
                                query = query,
-                               evalue = 0.0001,
                                word_size = blast_param['wordSize'],
                                gapopen = blast_param['gapOpen'],
                                gapextend = blast_param['gapExtend'],
                                matrix = blast_param['scoringMatrix'],
-                               outfmt = 7, #out_fmt,
-                               comp_based_stats = 'T',
-                               max_target_seqs = 2000,
-                               save_each_pssm=True,
-                               num_iterations=num_iterations,
-                               save_pssm_after_last_round=True,
+                               outfmt = out_fmt,
                                out_ascii_pssm = out_ascii_pssm,
                                out_pssm = out_pssm,
                                out = out_xml,
-                               num_threads = 4
+                               **self.blast_config
                                )
 
             # check that it's correct
@@ -236,3 +257,59 @@ class PSSM(object):
             for c in chain:
                 pssm = os.path.join(pssm_dir,pssm_files[c])
                 write_mapped_pssm_pdb(pssm, pdb, c, outdir)
+
+        # write mapped pdb
+        self._write_mapped_pdb(pdbindir=outdir.split('/')[1])
+
+    def _write_mapped_pdb(self, pdbindir='pssm', pdbrawdir='pdb_raw'):
+        """Write mapped pdb to working folder, by default 'pdb'
+
+        Args:
+            pdbindir (str): directory name where mapped pdb and pssm are stored
+            pdbrawdir (str): directory where backup original pdb files
+        """
+
+        pdbindir = os.path.join(self.caseID, pdbindir)
+        pdbrawdir = os.path.join(self.caseID, pdbrawdir)
+        print('='*80)
+        print(self.caseID)
+        print(pdbindir, pdbrawdir)
+
+        pdb_files = [f for f in os.listdir(pdbindir) if f.endswith('.pdb')]
+
+        if pdb_files:
+            if not os.path.isdir(pdbrawdir):
+                os.mkdir(pdbrawdir)
+
+            pdb_dict = {}
+            for pdb in pdb_files:
+                id, chain, _, _ = pdb.split('.')
+                if id not in pdb_dict:
+                    pdb_dict[id] = []
+                pdb_dict[id].append(chain)
+
+            for id, chains in pdb_dict.items():
+                pdb_wd = os.path.join(self.caseID, self.pdbdir, id+".pdb")
+                pdb_raw = os.path.join(pdbrawdir, id+".pdb")
+                os.rename(pdb_wd, pdb_raw)
+                if len(chains) == 1:
+                    pdb_new = os.path.join(pdbindir, id + "." + chains[0] + '.pssm.pdb')
+                    os.rename(pdb_new, pdb_wd)
+                else:
+                    with open(pdb_wd, 'w') as f:
+                        # write REMARK
+                        pdb_new = os.path.join(pdbindir, id + "." + chains[0] + '.pssm.pdb')
+                        with open(pdb_new, 'r') as fpdb:
+                            lines = [line for line in fpdb if line.startswith('REMARK')]
+                            f.writelines(lines)
+
+                        # write each chain
+                        for chain in chains:
+                            pdb_new = os.path.join(pdbindir, id + "." + chain + '.pssm.pdb')
+                            with open(pdb_new, 'r') as fpdb:
+                                lines = [line for line in fpdb
+                                    if line.startswith('ATOM') and
+                                    line[21:22] == chain]
+                                f.writelines(lines)
+                            os.remove(pdb_new)
+                        f.write('END\n')

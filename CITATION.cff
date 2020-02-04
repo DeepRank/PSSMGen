@@ -1,0 +1,29 @@
+# YAML 1.2
+---
+abstract: "Generates consistent PSSM and/or PDB files for protein-protein complexes"
+
+authors:
+  -
+    affiliation: "Netherlands eScience Center"
+    family-names: Renaud
+    given-names: Nicolas
+    orcid: "https://orcid.org/0000-0001-9589-2694"
+  -
+    affiliation: "Netherlands eScience Center"
+    family-names: Geng
+    given-names: Cunliang
+    orcid: "https://orcid.org/0000-0002-1409-8358"
+cff-version: "1.1.0"
+
+keywords:
+  - pssm
+  - pdb
+  - "protein-protein complex"
+  - docking
+  - bioinformatics
+  - CAPRI
+license: "Apache-2.0"
+message: "If you use this software, please cite it using these metadata."
+repository-code: "https://github.com/DeepRank/PSSMGen"
+title: PSSMGen
+...

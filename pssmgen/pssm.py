@@ -102,8 +102,7 @@ class PSSM(object):
     def configure(self, blast_exe=None, database=None,
         num_threads = 4, evalue=0.0001, comp_based_stats='T',
         max_target_seqs=2000, num_iterations=3, outfmt=7,
-        save_each_pssm=True, save_pssm_after_last_round=True
-        )
+        save_each_pssm=True, save_pssm_after_last_round=True):
         """Configure the blast executable, database and psiblast parameters.
 
         Notes:
@@ -130,7 +129,7 @@ class PSSM(object):
         self.blast_exe = blast_exe
         self.blast_config = {
             'db': database,
-            'num_threads': num_threads
+            'num_threads': num_threads,
             'evalue': evalue,
             'comp_based_stats': comp_based_stats,
             'max_target_seqs': max_target_seqs,
@@ -180,7 +179,7 @@ class PSSM(object):
 
             # set up the psiblast calculation
             psi_cline = NcbipsiblastCommandline(
-                               cmd = self.blast_exe
+                               cmd = self.blast_exe,
                                query = query,
                                word_size = blast_param['wordSize'],
                                gapopen = blast_param['gapOpen'],
@@ -202,7 +201,7 @@ class PSSM(object):
                 psi_cline()
 
                 # copyt the final pssm to its final name
-                shutil.copy2(out_ascii_pssm + '.%d' %num_iterations, out_ascii_pssm)
+                shutil.copy2(out_ascii_pssm + '.%d' %self.blast_config['num_iterations'], out_ascii_pssm)
 
                 # remove all the other files
                 for filename in glob.glob(out_pssm+'.*'):

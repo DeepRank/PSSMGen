@@ -31,7 +31,7 @@ from pssmgen import PSSM
 gen = PSSM('1AK4')
 
 # set psiblast executable, database and other psiblast parameters
-gen.configure(blast='/home/software/blast/bin/psiblast',
+gen.configure(blast_exe='/home/software/blast/bin/psiblast',
             database='/data/DBs/blast_dbs/nr_v20180204/nr')
 
 # generates FASTA files

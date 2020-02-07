@@ -1,4 +1,5 @@
 import os, glob, shutil
+import re
 from Bio.Blast.Applications import NcbipsiblastCommandline
 from pdb2sql import pdb2sql
 
@@ -7,13 +8,13 @@ from pssmgen.map_pssm2pdb import write_mapped_pssm_pdb
 
 class PSSM(object):
 
-    def __init__(self,caseID='',pdbdir='pdb'):
+    def __init__(self, work_dir='.'):
 
         """Compute the PSSM and map the the sequence for a series of decoys.
 
         Args:
             caseID (TYPE): Name of the case. This must correspond to a directory name
-            pdbdir (str, optional): directory name where the decoys pdbs are stored within caseID
+            pdb_dir (str, optional): directory name where the decoys pdbs are stored within caseID
 
         Example:
 
@@ -21,7 +22,7 @@ class PSSM(object):
         >>> from pssmgen import PSSM
         >>>
         >>> # create ab instance
-        >>> gen = PSSM('1AK4',pdbdir='water')
+        >>> gen = PSSM('1AK4',pdb_dir='water')
         >>>
         >>> # configure the generator
         >>> gen.configure(blast='/home/software/blast/bin/psiblast',
@@ -37,10 +38,7 @@ class PSSM(object):
         >>> gen.map_pssm()
         """
 
-        self.caseID = caseID
-        self.pdbdir = pdbdir
-        self.pdbs = os.listdir(os.path.join(self.caseID,self.pdbdir))
-        self.pdbs = list(filter(lambda x: x.endswith('.pdb'),self.pdbs))
+        self.work_dir = work_dir
 
         self.One2ThreeDict = {
         'A' : 'ALA', 'R' : 'ARG', 'N' : 'ASN', 'D' : 'ASP', 'C' : 'CYS', 'E' : 'GLU', 'Q' : 'GLN',
@@ -60,20 +58,24 @@ class PSSM(object):
         }
 
 
-    def get_fasta(self,chain=['A','B'],outdir='./fasta/'):
-
+    def get_fasta(self, pdb_dir='pdb', pdbref=None, chain=['A','B'], out_dir='fasta'):
         """Extract the sequence of the chains and writes a fasta query file for each.
 
         Args:
             chain (list, optional): Name of the chains in the pdbs
-            outdir (str, optional): name pf the output directory where to store the fast queries
+            out_dir (str, optional): name pf the output directory where to store the fast queries
         """
+        out_dir = os.path.join(self.work_dir,out_dir)
+        if not os.path.isdir(out_dir):
+            os.mkdir(out_dir)
 
-        outdir = os.path.join(self.caseID,outdir)
-        if not os.path.isdir(outdir):
-            os.mkdir(outdir)
+        if pdbref:
+            pdb = os.path.join(self.work_dir, pdb_dir, pdbref)
+        else:
+            pdbs = os.listdir(os.path.join(self.work_dir, pdb_dir))
+            pdbs = list(filter(lambda x: x.endswith('.pdb'), pdbs))
+            pdb = os.path.join(self.work_dir, pdb_dir, pdbs[0])
 
-        pdb = os.path.join(os.path.join(self.caseID,self.pdbdir),self.pdbs[0])
         sqldb = pdb2sql(pdb)
         for c in chain:
 
@@ -91,9 +93,10 @@ class PSSM(object):
                     count = 0
 
             # write the file
-            fname = os.path.join(outdir,self.caseID + '_%s' %c + '.fasta')
+            caseID = re.split('_|\.', os.path.basename(pdb))[0]
+            fname = os.path.join(out_dir, caseID + '.%s' %c + '.fasta')
             f = open(fname,'w')
-            f.write('>%s' %self.caseID + '_%s\n' %c)
+            f.write('>%s' %caseID + '.%s\n' %c)
             f.write(seq)
             f.close()
         sqldb.close()
@@ -138,8 +141,8 @@ class PSSM(object):
             'save_pssm_after_last_round': save_pssm_after_last_round,
         }
 
-    def get_pssm(self,fasta_dir='fasta/',
-                 outdir='pssm_raw/',
+    def get_pssm(self, fasta_dir='fasta',
+                 out_dir='pssm_raw',
                  run=True):
 
         """Compute the PSSM files
@@ -148,14 +151,14 @@ class PSSM(object):
             fasta_dir (str, optional): irectory where the fasta queries are stored
             blast (str, optional): path to the psiblast executable
             db (str, optional): path to the blast database
-            outdir (str, optional): output directory where to store the pssm files
+            out_dir (str, optional): output directory where to store the pssm files
             num_iterations (int, optional): number of iterations for the blast calculations
         """
 
-        fasta_dir = os.path.join(self.caseID,fasta_dir)
-        outdir = os.path.join(self.caseID,outdir)
-        if not os.path.isdir(outdir):
-            os.mkdir(outdir)
+        fasta_dir = os.path.join(self.work_dir,fasta_dir)
+        out_dir = os.path.join(self.work_dir,out_dir)
+        if not os.path.isdir(out_dir):
+            os.mkdir(out_dir)
 
         out_fmt = '7 qseqid qgi qacc qaccver qlen sseqid sallseqid sgi sallgi   ,\
                    sacc saccver sallacc slen qstart qend sstart send qseq sseq  ,\
@@ -170,9 +173,9 @@ class PSSM(object):
             name = os.path.splitext(os.path.basename(query))[0]
 
             # set up the output names
-            out_ascii_pssm = os.path.join(outdir,name + '.pssm')
-            out_pssm = os.path.join(outdir,name + '.cptpssm')
-            out_xml = os.path.join(outdir,name + '.xml')
+            out_ascii_pssm = os.path.join(out_dir,name + '.pssm')
+            out_pssm = os.path.join(out_dir,name + '.cptpssm')
+            out_xml = os.path.join(out_dir,name + '.xml')
 
             # get the parameters
             blast_param = self._get_psiblast_parameters(query)
@@ -232,53 +235,54 @@ class PSSM(object):
         else:
             return self.psiblast_parameter[4]
 
-    def map_pssm(self,pssm_dir='pssm_raw',outdir='pssm',chain=['A','B']):
+    def map_pssm(self, pssm_dir='pssm_raw', pdb_dir='pdb', out_dir='pssm', chain=['A','B']):
 
         """Map the raw pssm files to the pdb files of the decoys
 
         Args:
             pssm_dir (str, optional): name pf the directory where the pssm are stored
-            outdir (str, optional): name where thmapped pssm files are stored
+            out_dir (str, optional): name where thmapped pssm files are stored
             chain (list, optional): name of the chains
         """
-        pssm_dir = os.path.join(self.caseID,pssm_dir)
-        outdir = os.path.join(self.caseID,outdir)
-        if not os.path.isdir(outdir):
-            os.mkdir(outdir)
+        pssm_dir = os.path.join(self.work_dir,pssm_dir)
+        out_dir = os.path.join(self.work_dir,out_dir)
+        if not os.path.isdir(out_dir):
+            os.mkdir(out_dir)
 
+        # get list of pssm files
         pf = os.listdir(pssm_dir)
         pssm_files = {}
         for c in chain:
             pssm_files[c] = list(filter(lambda x: x.endswith(c+'.pssm'),pf))[0]
 
-        for p in self.pdbs:
-            pdb = os.path.join(os.path.join(self.caseID,self.pdbdir),p)
+        # get list of pdb files
+        pdbs = os.listdir(os.path.join(self.work_dir, pdb_dir))
+        pdbs = list(filter(lambda x: x.endswith('.pdb'), pdbs))
+
+        # map pssm and pdb
+        for p in pdbs:
+            pdb = os.path.join(os.path.join(self.work_dir, pdb_dir), p)
             for c in chain:
                 pssm = os.path.join(pssm_dir,pssm_files[c])
-                write_mapped_pssm_pdb(pssm, pdb, c, outdir)
+                write_mapped_pssm_pdb(pssm, pdb, c, out_dir)
 
-        # write mapped pdb
-        self._write_mapped_pdb(pdbindir=outdir.split('/')[1])
-
-    def _write_mapped_pdb(self, pdbindir='pssm', pdbrawdir='pdb_raw'):
+    def get_mapped_pdb(self, pdbpssm_dir='pssm', pdb_dir='pdb',
+        pdbnonmatch_dir='pdb_nonmatch'):
         """Write mapped pdb to working folder, by default 'pdb'
 
         Args:
-            pdbindir (str): directory name where mapped pdb and pssm are stored
-            pdbrawdir (str): directory where backup original pdb files
+            pdbpssm_dir (str): directory name where mapped pdb and pssm are stored
+            pdbnonmatch_dir (str): directory where backup original pdb files
         """
 
-        pdbindir = os.path.join(self.caseID, pdbindir)
-        pdbrawdir = os.path.join(self.caseID, pdbrawdir)
-        print('='*80)
-        print(self.caseID)
-        print(pdbindir, pdbrawdir)
+        pdbpssm_dir = os.path.join(self.work_dir, pdbpssm_dir)
+        pdbnonmatch_dir = os.path.join(self.work_dir, pdbnonmatch_dir)
 
-        pdb_files = [f for f in os.listdir(pdbindir) if f.endswith('.pdb')]
+        pdb_files = [f for f in os.listdir(pdbpssm_dir) if f.endswith('.pdb')]
 
         if pdb_files:
-            if not os.path.isdir(pdbrawdir):
-                os.mkdir(pdbrawdir)
+            if not os.path.isdir(pdbnonmatch_dir):
+                os.mkdir(pdbnonmatch_dir)
 
             pdb_dict = {}
             for pdb in pdb_files:
@@ -288,23 +292,23 @@ class PSSM(object):
                 pdb_dict[id].append(chain)
 
             for id, chains in pdb_dict.items():
-                pdb_wd = os.path.join(self.caseID, self.pdbdir, id+".pdb")
-                pdb_raw = os.path.join(pdbrawdir, id+".pdb")
+                pdb_wd = os.path.join(self.work_dir, pdb_dir, id+".pdb")
+                pdb_raw = os.path.join(pdbnonmatch_dir, id+".pdb")
                 os.rename(pdb_wd, pdb_raw)
                 if len(chains) == 1:
-                    pdb_new = os.path.join(pdbindir, id + "." + chains[0] + '.pssm.pdb')
+                    pdb_new = os.path.join(pdbpssm_dir, id + "." + chains[0] + '.pssm.pdb')
                     os.rename(pdb_new, pdb_wd)
                 else:
                     with open(pdb_wd, 'w') as f:
                         # write REMARK
-                        pdb_new = os.path.join(pdbindir, id + "." + chains[0] + '.pssm.pdb')
+                        pdb_new = os.path.join(pdbpssm_dir, id + "." + chains[0] + '.pssm.pdb')
                         with open(pdb_new, 'r') as fpdb:
                             lines = [line for line in fpdb if line.startswith('REMARK')]
                             f.writelines(lines)
 
                         # write each chain
                         for chain in chains:
-                            pdb_new = os.path.join(pdbindir, id + "." + chain + '.pssm.pdb')
+                            pdb_new = os.path.join(pdbpssm_dir, id + "." + chain + '.pssm.pdb')
                             with open(pdb_new, 'r') as fpdb:
                                 lines = [line for line in fpdb
                                     if line.startswith('ATOM') and

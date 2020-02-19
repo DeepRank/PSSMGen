@@ -1,6 +1,9 @@
 # PSSMGen
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3635712.svg)](https://doi.org/10.5281/zenodo.3635712)
+[![PyPI](https://img.shields.io/pypi/v/pssmgen)](https://pypi.org/project/pssmgen/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3635711.svg)](https://doi.org/10.5281/zenodo.3635711)
+[![RSD](https://img.shields.io/badge/RSD-PSSMGen-red)](https://research-software.nl/software/pssmgen)
+
 
 Generates consistent PSSM and/or PDB files for protein-protein complexes
 

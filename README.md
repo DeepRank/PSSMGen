@@ -1,14 +1,15 @@
 # PSSMGen
 
-| fair-software.nl recommendations | Badges |
+
+| Fair-software.nl Recommendations | Badges |
 |:-|:-:|
 | [1. Code Repository](https://fair-software.nl/recommendations/repository)       | [![GitHub URL](https://img.shields.io/badge/github-repo-000.svg?logo=github&labelColor=gray&color=blue)](https://github.com/DeepRank/pssmgen) |
 | &nbsp;                                                                          | [![GitHub](https://img.shields.io/github/last-commit/DeepRank/pssmgen)](https://github.com/DeepRank/pssmgen) |
 | [2. License](https://fair-software.nl/recommendations/license)                  | [![License](https://img.shields.io/github/license/DeepRank/pssmgen)](https://github.com/DeepRank/pssmgen) |
-| [3. Community Registry](https://fair-software.nl/recommendations/registry)      | [![Research Software Directory](https://img.shields.io/badge/rsd-PSSMGen-00a3e3.svg&labelColor=gray&color=00a3e3)](https://research-software.nl/software/pssmgen) |
+| [3. Community Registry](https://fair-software.nl/recommendations/registry)      | [![Research Software Directory](https://img.shields.io/badge/RSD-PSSMGen-red)](https://research-software.nl/software/pssmgen) |
 | &nbsp;                                                                          | [![PyPI](https://img.shields.io/pypi/v/pssmgen)](https://pypi.org/project/pssmgen/) |
 | [4. Enable Citation](https://fair-software.nl/recommendations/citation)         | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3635711.svg)](https://doi.org/10.5281/zenodo.3635711) |
-| [5. Code Quality Checklist](https://fair-software.nl/recommendations/checklist) | [![cii best practices](https://bestpractices.coreinfrastructure.org/projects/1811/badge)](https://bestpractices.coreinfrastructure.org/projects/1811)  |
+| [5. Code Quality Checklist](https://fair-software.nl/recommendations/checklist) | [![CII best practices](https://bestpractices.coreinfrastructure.org/projects/3759/badge)](https://bestpractices.coreinfrastructure.org/projects/3759) |
 
 <!--
 
@@ -28,8 +29,9 @@
 _(Customize these badges with your own links. Check https://shields.io/ to see which badges are available.)_
 
 -->
+-----
 
-Generates consistent PSSM and/or PDB files for protein-protein complexes
+PSSMGen: Generates Consistent PSSM and/or PDB Files for Protein-Protein Complexes
 
 ## Install
 

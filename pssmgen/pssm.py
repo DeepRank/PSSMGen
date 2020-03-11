@@ -104,7 +104,7 @@ class PSSM(object):
 
     def configure(self, blast_exe=None, database=None,
         num_threads = 4, evalue=0.0001, comp_based_stats='T',
-        max_target_seqs=2000, num_iterations=3, outfmt=7,
+        max_target_seqs=2000, num_iterations=3, outfmt=7, outspecifiers = None,
         save_each_pssm=True, save_pssm_after_last_round=True):
         """Configure the blast executable, database and psiblast parameters.
 
@@ -125,9 +125,29 @@ class PSSM(object):
                     not applicable for outfmt <= 4
             num_iterations (int): Number of iterations to perform,
                     0 means run until convergence
+            outfmt (int): Format for output alignment view. Valid values are 0-18.
+                    Default format 7 is "tabular with comment lines".
+                    Check `psiblast -help` for details.
+            outspecifiers (str): Output format 6, 7 and 10 can be additionally
+                    configured to produce a custom format specified by space
+                    delimited format specifiers. By default using all sepcifiers.
+                    Check `psiblast -help` for details.
             save_each_pssm (bool): Save PSSM after each iteration
             save_pssm_after_last_round (bool): Save PSSM after the last database search
         """
+        # output format sepcifiers for format 6, 7 and 10. See psiblast for details.
+        specifiers = 'qseqid qgi qacc qaccver qlen sseqid sallseqid sgi sallgi \
+                sacc saccver sallacc slen qstart qend sstart send qseq sseq \
+                evalue bitscore score length pident nident mismatch positive \
+                gapopen gaps ppos frames qframe sframe btop staxids stitle \
+                salltitles sstrand qcovs qcovhsp qcovus'
+
+        outfmt = str(outfmt)
+        if outfmt in ['6', '7', '10']:
+            if outspecifiers is not None:
+                outfmt = ' '.join(outfmt, outspecifiers)
+            else:
+                outfmt = ' '.join(outfmt, specifiers)
 
         self.blast_exe = blast_exe
         self.blast_config = {
@@ -139,6 +159,7 @@ class PSSM(object):
             'num_iterations': num_iterations,
             'save_each_pssm': save_each_pssm,
             'save_pssm_after_last_round': save_pssm_after_last_round,
+            'outfmt': outfmt,
         }
 
     def get_pssm(self, fasta_dir='fasta',
@@ -159,12 +180,6 @@ class PSSM(object):
         out_dir = os.path.join(self.work_dir,out_dir)
         if not os.path.isdir(out_dir):
             os.mkdir(out_dir)
-
-        out_fmt = '7 qseqid qgi qacc qaccver qlen sseqid sallseqid sgi sallgi   ,\
-                   sacc saccver sallacc slen qstart qend sstart send qseq sseq  ,\
-                   evalue bitscore score length pident nident mismatch positive ,\
-                   gapopen gaps ppos frames qframe sframe btop staxids stitle   ,\
-                   salltitles sstrand qcovs qcovhsp qcovus'
 
         for q in os.listdir(fasta_dir):
 
@@ -188,7 +203,6 @@ class PSSM(object):
                                gapopen = blast_param['gapOpen'],
                                gapextend = blast_param['gapExtend'],
                                matrix = blast_param['scoringMatrix'],
-                               outfmt = out_fmt,
                                out_ascii_pssm = out_ascii_pssm,
                                out_pssm = out_pssm,
                                out = out_xml,

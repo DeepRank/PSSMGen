@@ -93,7 +93,7 @@ class PSSM(object):
                     count = 0
 
             # write the file
-            caseID = re.split('_|\.', os.path.basename(pdb))[0]
+            caseID = re.split('_|.', os.path.basename(pdb))[0]
             fname = os.path.join(out_dir, caseID + '.%s' %c + '.fasta')
             f = open(fname,'w')
             f.write('>%s' %caseID + '.%s\n' %c)
@@ -246,24 +246,26 @@ class PSSM(object):
             seq += len(l)
 
         if seq < 30:
-            return self.psiblast_parameter[0]
+            p = self.psiblast_parameter[0]
         elif seq < 35:
-            return self.psiblast_parameter[1]
+            p = self.psiblast_parameter[1]
         elif seq < 50:
-            return self.psiblast_parameter[2]
+            p = self.psiblast_parameter[2]
         elif seq < 85:
-            return self.psiblast_parameter[3]
+            p = self.psiblast_parameter[3]
         else:
-            return self.psiblast_parameter[4]
+            p = self.psiblast_parameter[4]
 
-    def map_pssm(self, pssm_dir='pssm_raw', pdb_dir='pdb', out_dir='pssm', chain=['A','B']):
+        return p
+
+    def map_pssm(self, pssm_dir='pssm_raw', pdb_dir='pdb', out_dir='pssm', chain=('A','B')):
 
         """Map the raw pssm files to the pdb files of the decoys
 
         Args:
             pssm_dir (str, optional): name pf the directory where the pssm are stored
             out_dir (str, optional): name where thmapped pssm files are stored
-            chain (list, optional): name of the chains
+            chain (tuple, optional): name of the chains
         """
         pssm_dir = os.path.join(self.work_dir,pssm_dir)
         out_dir = os.path.join(self.work_dir,out_dir)
@@ -307,29 +309,29 @@ class PSSM(object):
 
             pdb_dict = {}
             for pdb in pdb_files:
-                id, chain, _, _ = pdb.split('.')
-                if id not in pdb_dict:
-                    pdb_dict[id] = []
-                pdb_dict[id].append(chain)
+                caseid, chain, _, _ = pdb.split('.')
+                if caseid not in pdb_dict:
+                    pdb_dict[caseid] = []
+                pdb_dict[caseid].append(chain)
 
-            for id, chains in pdb_dict.items():
-                pdb_wd = os.path.join(self.work_dir, pdb_dir, id+".pdb")
-                pdb_raw = os.path.join(pdbnonmatch_dir, id+".pdb")
+            for caseid, chains in pdb_dict.items():
+                pdb_wd = os.path.join(self.work_dir, pdb_dir, caseid+".pdb")
+                pdb_raw = os.path.join(pdbnonmatch_dir, caseid+".pdb")
                 os.rename(pdb_wd, pdb_raw)
                 if len(chains) == 1:
-                    pdb_new = os.path.join(pdbpssm_dir, id + "." + chains[0] + '.pssm.pdb')
+                    pdb_new = os.path.join(pdbpssm_dir, caseid + "." + chains[0] + '.pssm.pdb')
                     os.rename(pdb_new, pdb_wd)
                 else:
                     with open(pdb_wd, 'w') as f:
                         # write REMARK
-                        pdb_new = os.path.join(pdbpssm_dir, id + "." + chains[0] + '.pssm.pdb')
+                        pdb_new = os.path.join(pdbpssm_dir, caseid + "." + chains[0] + '.pssm.pdb')
                         with open(pdb_new, 'r') as fpdb:
                             lines = [line for line in fpdb if line.startswith('REMARK')]
                             f.writelines(lines)
 
                         # write each chain
                         for chain in chains:
-                            pdb_new = os.path.join(pdbpssm_dir, id + "." + chain + '.pssm.pdb')
+                            pdb_new = os.path.join(pdbpssm_dir, caseid + "." + chain + '.pssm.pdb')
                             with open(pdb_new, 'r') as fpdb:
                                 lines = [line for line in fpdb
                                     if line.startswith('ATOM') and

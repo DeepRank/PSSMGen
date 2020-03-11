@@ -145,9 +145,9 @@ class PSSM(object):
         outfmt = str(outfmt)
         if outfmt in ['6', '7', '10']:
             if outspecifiers is not None:
-                outfmt = ' '.join(outfmt, outspecifiers)
+                outfmt = outfmt + ' ' + outspecifiers
             else:
-                outfmt = ' '.join(outfmt, specifiers)
+                outfmt = outfmt + ' ' + specifiers
 
         self.blast_exe = blast_exe
         self.blast_config = {

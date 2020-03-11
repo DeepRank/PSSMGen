@@ -217,8 +217,15 @@ class PSSM(object):
                 # run the blast query
                 psi_cline()
 
-                # copyt the final pssm to its final name
-                shutil.copy2(out_ascii_pssm + '.%d' %self.blast_config['num_iterations'], out_ascii_pssm)
+                # copy the pssm of last exiting iteration to its final name
+
+                for i in reversed(range(self.blast_config['num_iterations'])):
+                    fpssm = out_ascii_pssm + '.' + str(i+1)
+                    if os.path.isfile(fpssm):
+                        shutil.copy2(fpssm, out_ascii_pssm)
+                    elif i==0:
+                        raise FileNotFoundError(f'Not found {fpssm}. \
+                            PSIBlast may fail to find homologs for given fasta')
 
                 # remove all the other files
                 for filename in glob.glob(out_pssm+'.*'):

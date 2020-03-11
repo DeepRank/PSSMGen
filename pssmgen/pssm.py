@@ -223,6 +223,7 @@ class PSSM(object):
                     fpssm = out_ascii_pssm + '.' + str(i+1)
                     if os.path.isfile(fpssm):
                         shutil.copy2(fpssm, out_ascii_pssm)
+                        break
                     elif i==0:
                         raise FileNotFoundError(f'Not found {fpssm}. \
                             PSIBlast may fail to find homologs for given fasta')

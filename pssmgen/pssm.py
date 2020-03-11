@@ -173,7 +173,7 @@ class PSSM(object):
             fasta_dir (str, optional): irectory where the fasta queries are stored
             out_dir (str, optional): output directory where to store the pssm files
             save_all_psiblast_output (bool, optional): save all output from psiblast,
-                 including pssm files of each round, search strategy and homologs, etc.
+                 including pssm files of each round and details of homologs, etc.
         """
 
         fasta_dir = os.path.join(self.work_dir,fasta_dir)
@@ -190,7 +190,7 @@ class PSSM(object):
             # set up the output names
             out_ascii_pssm = os.path.join(out_dir,name + '.pssm')
             out_pssm = os.path.join(out_dir,name + '.cptpssm')
-            out_xml = os.path.join(out_dir,name + '.xml')
+            out_homologs = os.path.join(out_dir,name + '.homologs')
 
             # get the parameters
             blast_param = self._get_psiblast_parameters(query)
@@ -205,7 +205,7 @@ class PSSM(object):
                                matrix = blast_param['scoringMatrix'],
                                out_ascii_pssm = out_ascii_pssm,
                                out_pssm = out_pssm,
-                               out = out_xml,
+                               out = out_homologs,
                                **self.blast_config
                                )
 
@@ -234,7 +234,7 @@ class PSSM(object):
                         os.remove(filename)
                     for filename in glob.glob(out_ascii_pssm+'.*'):
                         os.remove(filename)
-                    os.remove(out_xml)
+                    os.remove(out_homologs)
 
 
     def _get_psiblast_parameters(self,fasta_query):

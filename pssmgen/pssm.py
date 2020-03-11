@@ -164,16 +164,16 @@ class PSSM(object):
 
     def get_pssm(self, fasta_dir='fasta',
                  out_dir='pssm_raw',
-                 run=True):
+                 run=True,
+                 save_all_psiblast_output=False):
 
         """Compute the PSSM files
 
         Args:
             fasta_dir (str, optional): irectory where the fasta queries are stored
-            blast (str, optional): path to the psiblast executable
-            db (str, optional): path to the blast database
             out_dir (str, optional): output directory where to store the pssm files
-            num_iterations (int, optional): number of iterations for the blast calculations
+            save_all_psiblast_output (bool, optional): save all output from psiblast,
+                 including pssm files of each round, search strategy and homologs, etc.
         """
 
         fasta_dir = os.path.join(self.work_dir,fasta_dir)
@@ -227,12 +227,13 @@ class PSSM(object):
                         raise FileNotFoundError(f'Not found {fpssm}. \
                             PSIBlast may fail to find homologs for given fasta')
 
-                # remove all the other files
-                for filename in glob.glob(out_pssm+'.*'):
-                    os.remove(filename)
-                for filename in glob.glob(out_ascii_pssm+'.*'):
-                    os.remove(filename)
-                os.remove(out_xml)
+                if not save_all_psiblast_output:
+                    # remove all the other files
+                    for filename in glob.glob(out_pssm+'.*'):
+                        os.remove(filename)
+                    for filename in glob.glob(out_ascii_pssm+'.*'):
+                        os.remove(filename)
+                    os.remove(out_xml)
 
 
     def _get_psiblast_parameters(self,fasta_query):

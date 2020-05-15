@@ -1,41 +1,24 @@
-import os, glob, shutil
+import os
+import glob
+import shutil
 import re
+import logging
 from Bio.Blast.Applications import NcbipsiblastCommandline
 from pdb2sql import pdb2sql
 
 from pssmgen.map_pssm2pdb import write_mapped_pssm_pdb
 
+logger = logging.getLogger()
 
-class PSSM(object):
+class PSSM():
 
     def __init__(self, work_dir='.'):
 
         """Compute the PSSM and map the the sequence for a series of decoys.
 
         Args:
-            caseID (TYPE): Name of the case. This must correspond to a directory name
-            pdb_dir (str, optional): directory name where the decoys pdbs are stored within caseID
-
-        Example:
-
-        >>> # import the module
-        >>> from pssmgen import PSSM
-        >>>
-        >>> # create ab instance
-        >>> gen = PSSM('1AK4',pdb_dir='water')
-        >>>
-        >>> # configure the generator
-        >>> gen.configure(blast='/home/software/blast/bin/psiblast',
-                         database='/data/DBs/blast_dbs/nr_v20180204/nr')
-        >>>
-        >>> # generates the FASTA query
-        >>> gen.get_fasta()
-        >>>
-        >>> # generates the PSSM
-        >>> gen.get_pssm()
-        >>>
-        >>> # map the pssm to the pdb
-        >>> gen.map_pssm()
+            work_dir (str, optional): the working directory that contains the
+                pdb directory and/or fasta directory.
         """
 
         self.work_dir = work_dir
@@ -58,11 +41,11 @@ class PSSM(object):
         }
 
 
-    def get_fasta(self, pdb_dir='pdb', pdbref=None, chain=['A','B'], out_dir='fasta'):
+    def get_fasta(self, pdb_dir='pdb', pdbref=None, chain=('A','B'), out_dir='fasta'):
         """Extract the sequence of the chains and writes a fasta query file for each.
 
         Args:
-            chain (list, optional): Name of the chains in the pdbs
+            chain (tuple, optional): Name of the chains in the pdbs
             out_dir (str, optional): name pf the output directory where to store the fast queries
         """
         out_dir = os.path.join(self.work_dir,out_dir)
@@ -77,6 +60,8 @@ class PSSM(object):
             pdb = os.path.join(self.work_dir, pdb_dir, pdbs[0])
 
         sqldb = pdb2sql(pdb)
+        print('Generating FASTA files...')
+        logger.info('Output FASTA files:')
         for c in chain:
 
             # get the unique residues
@@ -93,14 +78,14 @@ class PSSM(object):
                     count = 0
 
             # write the file
-            caseID = re.split('_|.', os.path.basename(pdb))[0]
+            caseID = re.split('_|\.', os.path.basename(pdb))[0]
             fname = os.path.join(out_dir, caseID + '.%s' %c + '.fasta')
-            f = open(fname,'w')
-            f.write('>%s' %caseID + '.%s\n' %c)
-            f.write(seq)
-            f.close()
-        sqldb.close()
+            with open(fname,'w') as f:
+                f.write('>%s' %caseID + '.%s\n' %c)
+                f.write(seq)
+            logger.info(f'  {fname}')
 
+        print(f'FASTA files generated in {out_dir}.\n')
 
     def configure(self, blast_exe=None, database=None,
         num_threads = 4, evalue=0.0001, comp_based_stats='T',
@@ -213,16 +198,17 @@ class PSSM(object):
             psi_cline._validate()
 
             if run:
-
                 # run the blast query
+                print('Generatinng raw PSSMs with BLAST...')
                 psi_cline()
 
                 # copy the pssm of last exiting iteration to its final name
-
+                logger.info('Generated raw PSSM files:')
                 for i in reversed(range(self.blast_config['num_iterations'])):
                     fpssm = out_ascii_pssm + '.' + str(i+1)
                     if os.path.isfile(fpssm):
                         shutil.copy2(fpssm, out_ascii_pssm)
+                        logger.info(f'  {out_ascii_pssm}')
                         break
                     elif i==0:
                         raise FileNotFoundError(f'Not found {fpssm}. \
@@ -235,6 +221,9 @@ class PSSM(object):
                     for filename in glob.glob(out_ascii_pssm+'.*'):
                         os.remove(filename)
                     os.remove(out_homologs)
+                else:
+                    logger.info(f'Other intermediate output files are in {out_dir}')
+                print(f'Raw PSSM files generated in {out_dir}.\n')
 
 
     def _get_psiblast_parameters(self,fasta_query):
@@ -285,11 +274,15 @@ class PSSM(object):
         pdbs = list(filter(lambda x: x.endswith('.pdb'), pdbs))
 
         # map pssm and pdb
+        print('Generatinng mapped PSSMs...')
+        logger.info('Output mapped PSSM files:')
         for p in pdbs:
             pdb = os.path.join(os.path.join(self.work_dir, pdb_dir), p)
             for c in chain:
                 pssm = os.path.join(pssm_dir,pssm_files[c])
                 write_mapped_pssm_pdb(pssm, pdb, c, out_dir)
+                logger.info(f'  {os.path.join(out_dir, pssm_files[c])}')
+        print(f'Mapped PSSM files generated in {out_dir}.\n')
 
     def get_mapped_pdb(self, pdbpssm_dir='pssm', pdb_dir='pdb',
         pdbnonmatch_dir='pdb_nonmatch'):
@@ -306,6 +299,7 @@ class PSSM(object):
         pdb_files = [f for f in os.listdir(pdbpssm_dir) if f.endswith('.pdb')]
 
         if pdb_files:
+            print('Generatinng mapped PDB files...')
             if not os.path.isdir(pdbnonmatch_dir):
                 os.mkdir(pdbnonmatch_dir)
 
@@ -341,3 +335,5 @@ class PSSM(object):
                                 f.writelines(lines)
                             os.remove(pdb_new)
                         f.write('END\n')
+            print('Inconsistent raw PDB files moved to {pdbnonmatch_dir}')
+            print('Mapped PDB files generated in {pdbpssm_dir}.\n')

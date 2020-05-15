@@ -48,7 +48,7 @@ class PSSM():
             pdb_dir (str, optional): path for pdb files.
                 Defaults to 'pdb'.
             pdbref (str, optional): filename of the reference pdb.
-                Defaults to None.
+                Defaults to None, i.e. randomly select one.
             chain (tuple, optional): Name of the chains in the pdbs.
                 Defaults to ('A','B').
             out_dir (str, optional): output path for fasta files.

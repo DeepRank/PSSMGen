@@ -71,11 +71,8 @@ The code assumes you follow the naming rules for different file types:
 
 ## Examples
 
-### Get consistent PSSM and PDB files for a specific protein-protein complex
-
-Here is an example for complex `7CEI`:
-
-The file structure and input files should look like:
+Here are some examples for the complex `7CEI`.
+The file structure and input files should look like
 ```
 7CEI
 ├── pdb
@@ -86,6 +83,8 @@ The file structure and input files should look like:
     ├── 7CEI.A.fasta
     └── 7CEI.B.fasta
 ```
+
+### Calculate PSSM with given FASTA files
 
 ```python
 from pssmgen import PSSM
@@ -102,7 +101,17 @@ gen.configure(blast_exe='/home/software/blast/bin/psiblast',
 
 # generates raw PSSM files by running BLAST with fasta files
 gen.get_pssm(fasta_dir='fasta', out_dir='pssm_raw', run=True, save_all_psiblast_output=True)
+```
 
+The code will automatically create `pssm_raw` folder to store the generated PSSM files.
+
+
+### Map PSSM files to PDB files to get consistent PSSM and PDB files
+
+After getting the raw PSSMs from last example, we could map them to PDB files to
+get consistent PSSM and PDB files as following:
+
+```python
 # map PSSM and PDB to get consisitent/mapped PSSM files
 gen.map_pssm(pssm_dir='pssm_raw', pdb_dir='pdb', out_dir='pssm', chain=('A','B'))
 
@@ -110,11 +119,12 @@ gen.map_pssm(pssm_dir='pssm_raw', pdb_dir='pdb', out_dir='pssm', chain=('A','B')
 gen.get_mapped_pdb(pdbpssm_dir='pssm', pdb_dir='pdb', pdbnonmatch_dir='pdb_nonmatch')
 ```
 
-The code will automatically create `pssm_raw`, `pssm` and `pdb_nonmatch` folders and related files.
+The code will automatically create `pssm` and `pdb_nonmatch` folders and related files.
 
-### Using FASTA files extracted from PDB file
 
-You can also use FASTA files extracted from PDB file.
+### Extract FASTA files from PDB file
+
+If the FASTA files are not provided, you can also generate them from the PDB file.
 
 The file structure and input files should look like
 ```
@@ -126,27 +136,19 @@ The file structure and input files should look like
 ```
 
 ```python
-from pssmgen import PSSM
-
 # initiate the PSSM object
 gen = PSSM('7CEI')
 
 # extract FASTA file from the reference pdb file.
 # if `pdbref` is not set, the code will randomly select one pdb as reference.
 gen.get_fasta(pdb_dir='pdb', pdbref='7CEI_1w.pdb', chain=('A','B'), out_dir='fasta')
-
-# set psiblast executable, database
-gen.configure(blast_exe='/home/software/blast/bin/psiblast',
-            database='/data/DBs/blast_dbs/nr_v20180204/nr')
-
-# generates PSSM
-gen.get_pssm()
 ```
 The code will automatically create `fasta` and `pssm_raw` folders for fasta files and raw pssm files, repsectively.
 
-### Using customised PSSM files
 
-You can also use avaliable PSSM files intead of calculating them again.
+### Use existing PSSM files to get consistent PSSM and PDB files
+
+You can provide raw PSSM files intead of calculating them.
 
 The file structure and input files should look like
 ```

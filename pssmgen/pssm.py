@@ -275,13 +275,12 @@ class PSSM():
 
         # map pssm and pdb
         print('Generatinng mapped PSSMs...')
-        logger.info('Output mapped PSSM files:')
+        logger.info('\nOutput mapped PSSM files:')
         for p in pdbs:
             pdb = os.path.join(os.path.join(self.work_dir, pdb_dir), p)
             for c in chain:
                 pssm = os.path.join(pssm_dir,pssm_files[c])
                 write_mapped_pssm_pdb(pssm, pdb, c, out_dir)
-                logger.info(f'  {os.path.join(out_dir, pssm_files[c])}')
         print(f'Mapped PSSM files generated in {out_dir}.\n')
 
     def get_mapped_pdb(self, pdbpssm_dir='pssm', pdb_dir='pdb',
@@ -335,5 +334,5 @@ class PSSM():
                                 f.writelines(lines)
                             os.remove(pdb_new)
                         f.write('END\n')
-            print('Inconsistent raw PDB files moved to {pdbnonmatch_dir}')
-            print('Mapped PDB files generated in {pdb_dir}.\n')
+            print(f'Inconsistent raw PDB files moved to {pdbnonmatch_dir}')
+            print(f'Mapped PDB files generated in {os.path.join(self.work_dir, pdb_dir)}.\n')

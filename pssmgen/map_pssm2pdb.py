@@ -12,6 +12,7 @@ Author: {0} ({1})
 
 import os
 import sys
+import logging
 import numpy as np
 from Bio import pairwise2
 
@@ -19,6 +20,7 @@ __author__ = "Cunliang Geng"
 __email__ = "gengcunliang AT gmail.com"
 USAGE = __doc__.format(__author__, __email__)
 
+logger = logging.getLogger()
 
 def check_input(args):
     """Validate user input
@@ -232,11 +234,13 @@ def write_mapped_pssm_pdb(fpssm, fpdb, chainID, outdir):
                 mut_seq.append("^")
             else:
                 mut_seq.append("_")
-        try:
-            raise Warning("Warning: Mutations exist in following sequences:\n>{pdbname}_{chainid}:\n{pdbseq}\n>{pssmname}:\n{pssmseq}\n{mutseq}\n".format(
-                pdbname=pdbname, chainid=chainID, pssmname=pssmname, pdbseq="".join(pdb_seq_align), pssmseq="".join(pssm_seq_align), mutseq="".join(mut_seq)))
-        except Warning as e:
-            print(e)
+
+        logger.warning("\nWarning: Mutations exist in following sequences:")
+        logger.warning(f'Warning: >{pdbname}_{chainID}:')
+        logger.warning(f'Warning: {"".join(pdb_seq_align)}')
+        logger.warning(f'Warning: >{pssmname}:')
+        logger.warning(f'Warning: {"".join(pssm_seq_align)}')
+        logger.warning(f'Warning: {"".join(mut_seq)}\n')
 
     # get pssm with index of normal residues for both sequences, this is the mapped pssm.
     index_norm_nogappssm = index_norm[np.logical_not(index_gappssm)]
@@ -261,6 +265,7 @@ def write_mapped_pssm_pdb(fpssm, fpdb, chainID, outdir):
             tmp1 = ["{:>7s}".format(j) for j in i[:4]]
             tmp2 = ["{:>4s}".format(j) for j in i[4:]]
             f.write(" ".join(tmp1+tmp2) + "\n")
+    logger.info(f'  {fopssm}')
 
     # write mapped PDB file if some residues not exist in the mapped PSSM file
     index_toremove = np.logical_or(np.logical_or(index_gappssm, index_resXpssm), index_resXpdb)
@@ -274,11 +279,8 @@ def write_mapped_pssm_pdb(fpssm, fpdb, chainID, outdir):
         resn_pdb_remove = [ i.strip() for i in resn_pdb_remove[:,0].tolist() ]
         write_pdb_remove_residue(fpdb, fopdb, chainID, resn_pdb_remove)
 
-        print("Warning: A new PDB file with all chains and consistent sequence of chain {} is generated: {}\n".format(chainID, fopdb))
-
 
 if __name__ == "__main__":
     check_input(sys.argv[1:])
     fpssm, fpdb, chainID, outdir = sys.argv[1:]
-    # fpssm, fpdb, chainID, outdir = "4CPA.A.pssm", "4CPA.pdb", "A",  "."
     write_mapped_pssm_pdb(fpssm, fpdb, chainID, outdir)

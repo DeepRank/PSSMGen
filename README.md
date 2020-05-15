@@ -35,7 +35,7 @@ PSSMGen: Generates Consistent PSSM and/or PDB Files for Protein-Protein Complexe
 
 ## Install
 
-1. Make sure BLAST is installed and its database is available on your machine. Otherwise, install BLAST and download its databases by following the [BLAST guide](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download).
+1. Make sure BLAST is installed and its database is available on your machine. Otherwise, install BLAST and download its databases by following the [BLAST guide](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download). To calculate PSSM, the recommended database is the non-redundant protein sequences `nr` (i.e. `nr.*.tar.gz` files from the [ftp site](https://ftp.ncbi.nlm.nih.gov/blast/db/)).
 2. Install the PSSMgen by `pip install PSSMGen`.
 
 
@@ -57,8 +57,8 @@ This tool assumes your files have following structure:
 
 - `workdir` is your working directory for one specific protein-protein complex.
 - `pdb` folder must contain the PDB files.
-- `fasta` folder contains the protein sequence [FASTA](https://en.wikipedia.org/wiki/FASTA_format) files. The code can generate the FASTA files by extracting sequences from the `pdb` file , or you can manually create this folder and put customed FASTA files there.
-- `pssm_raw` folder stores the PSSM files. The code can automatically generate them, or you can manually create this folder and put customed PSSM files there.
+- `fasta` folder contains the protein sequence [FASTA](https://en.wikipedia.org/wiki/FASTA_format) files. The code can generate the FASTA files by extracting sequences from the `pdb` file , or you can manually create this folder and put customised FASTA files there.
+- `pssm_raw` folder stores the PSSM files. The code can automatically generate them, or you can manually create this folder and put customised PSSM files there.
 - `pssm` folder stores consistent PSSM files, whose sequences are aligned with those of PDB files. This folder and its files are created automatically.
 - `pdb_nonmatch` folder stores the inconsistent PDB files, while the related consistent PDB files are in the `pdb` folder. This folder and its files are created automatically.
 
@@ -113,9 +113,9 @@ gen.get_mapped_pdb(pdbpssm_dir='pssm', pdb_dir='pdb', pdbnonmatch_dir='pdb_nonma
 
 The code will automatically create `fasta`, `pssm_raw`, `pssm` and `pdb_nonmatch` folders and related files.
 
-### Using customed FASTA files
+### Using customised FASTA files
 
-You can use customed FASTA files intead of extracting them from PDB file.
+You can use customised FASTA files intead of extracting them from PDB file.
 
 The file structure and input files should look like
 ```
@@ -140,7 +140,7 @@ gen.configure(blast_exe='/home/software/blast/bin/psiblast',
 gen.get_pssm()
 ```
 
-### Using customed PSSM files
+### Using customised PSSM files
 
 You can also use avaliable PSSM files intead of calculating them again.
 

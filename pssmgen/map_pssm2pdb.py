@@ -277,12 +277,6 @@ def write_mapped_pssm_pdb(fpssm, fpdb, chainID, outdir):
         print("Warning: A new PDB file with all chains and consistent sequence of chain {} is generated: {}\n".format(chainID, fopdb))
 
 
-    
-        
-
-
-
-
 if __name__ == "__main__":
     check_input(sys.argv[1:])
     fpssm, fpdb, chainID, outdir = sys.argv[1:]

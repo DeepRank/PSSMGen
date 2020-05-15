@@ -13,12 +13,12 @@ logger = logging.getLogger()
 class PSSM():
 
     def __init__(self, work_dir='.'):
-
-        """Compute the PSSM and map the the sequence for a series of decoys.
+        """Compute PSSM and map the sequence for a series of decoys.
 
         Args:
             work_dir (str, optional): the working directory that contains the
                 pdb directory and/or fasta directory.
+                Defaults to '.'.
         """
 
         self.work_dir = work_dir
@@ -45,8 +45,14 @@ class PSSM():
         """Extract the sequence of the chains and writes a fasta query file for each.
 
         Args:
-            chain (tuple, optional): Name of the chains in the pdbs
-            out_dir (str, optional): name pf the output directory where to store the fast queries
+            pdb_dir (str, optional): path for pdb files.
+                Defaults to 'pdb'.
+            pdbref (str, optional): filename of the reference pdb.
+                Defaults to None.
+            chain (tuple, optional): Name of the chains in the pdbs.
+                Defaults to ('A','B').
+            out_dir (str, optional): output path for fasta files.
+                Defaults to 'fasta'.
         """
         out_dir = os.path.join(self.work_dir,out_dir)
         if not os.path.isdir(out_dir):
@@ -99,17 +105,22 @@ class PSSM():
         Args:
             blast_exe (str): Path to the psiblast executable
             database (str) : Path to the Blast database
-            num_threads (int): Number of threads (CPUs) to use in the BLAST search
-            evalue (float): Expectation value (E) threshold for saving hits
+            num_threads (int): Number of threads (CPUs) to use in the BLAST search.
+                Defaults to 4.
+            evalue (float): Expectation value (E) threshold for saving hits.
+                Defaults to 0.0001.
             comp_based_stats (str, int): Use composition-based statistics,
                     0, F or f: no composition-based statistics
                     2, T or t, D or d : Composition-based score adjustment
                     as in Bioinformatics 21:902-911, 2005, conditioned on
                     sequence properties
+                Defaults to 'T'.
             max_target_seqs (int): Maximum number of aligned sequences to keep,
-                    not applicable for outfmt <= 4
+                    not applicable for outfmt <= 4.
+                    Defaults to 2000.
             num_iterations (int): Number of iterations to perform,
-                    0 means run until convergence
+                    0 means run until convergence.
+                    Defaults to 3.
             outfmt (int): Format for output alignment view. Valid values are 0-18.
                     Default format 7 is "tabular with comment lines".
                     Check `psiblast -help` for details.
@@ -117,8 +128,10 @@ class PSSM():
                     configured to produce a custom format specified by space
                     delimited format specifiers. By default using all sepcifiers.
                     Check `psiblast -help` for details.
-            save_each_pssm (bool): Save PSSM after each iteration
-            save_pssm_after_last_round (bool): Save PSSM after the last database search
+            save_each_pssm (bool): Save PSSM after each iteration.
+                    Defaults to True.
+            save_pssm_after_last_round (bool): Save PSSM after the last database search.
+                    Defaults to True.
         """
         # output format sepcifiers for format 6, 7 and 10. See psiblast for details.
         specifiers = 'qseqid qgi qacc qaccver qlen sseqid sallseqid sgi sallgi \
@@ -151,16 +164,23 @@ class PSSM():
                  out_dir='pssm_raw',
                  run=True,
                  save_all_psiblast_output=False):
-
-        """Compute the PSSM files
+        """Compute the PSSMs by running BLAST
 
         Args:
-            fasta_dir (str, optional): irectory where the fasta queries are stored
-            out_dir (str, optional): output directory where to store the pssm files
-            save_all_psiblast_output (bool, optional): save all output from psiblast,
-                 including pssm files of each round and details of homologs, etc.
-        """
+            fasta_dir (str, optional): path of fasta files.
+                Defaults to 'fasta'.
+            out_dir (str, optional): output path for pssm files.
+                Defaults to 'pssm_raw'.
+            run (bool, optional): run blast.
+                Defaults to True.
+            save_all_psiblast_output (bool, optional):
+                save all output from psiblast, including pssm files of
+                each round and details of homologs, etc.
+                Defaults to False.
 
+        Raises:
+            FileNotFoundError: BLAST failed to find homologs.
+        """
         fasta_dir = os.path.join(self.work_dir,fasta_dir)
         out_dir = os.path.join(self.work_dir,out_dir)
         if not os.path.isdir(out_dir):
@@ -226,7 +246,7 @@ class PSSM():
                 print(f'Raw PSSM files generated in {out_dir}.\n')
 
 
-    def _get_psiblast_parameters(self,fasta_query):
+    def _get_psiblast_parameters(self, fasta_query):
 
         f = open(fasta_query)
         data =f.readlines()
@@ -250,13 +270,16 @@ class PSSM():
         return p
 
     def map_pssm(self, pssm_dir='pssm_raw', pdb_dir='pdb', out_dir='pssm', chain=('A','B')):
-
         """Map the raw pssm files to the pdb files of the decoys
 
         Args:
-            pssm_dir (str, optional): name pf the directory where the pssm are stored
-            out_dir (str, optional): name where thmapped pssm files are stored
-            chain (tuple, optional): name of the chains
+            pssm_dir (str, optional): path of raw pssm files.
+                Defaults to 'pssm_raw'.
+            pdb_dir (str, optional): path of pdb files.
+                Defaults to 'pdb'.
+            out_dir (str, optional): output path for mapped pssm files.
+                Defaults to 'pssm'.
+            chain (tuple, optional): chain names. Defaults to ('A','B').
         """
         pssm_dir = os.path.join(self.work_dir,pssm_dir)
         out_dir = os.path.join(self.work_dir,out_dir)
@@ -285,13 +308,16 @@ class PSSM():
 
     def get_mapped_pdb(self, pdbpssm_dir='pssm', pdb_dir='pdb',
         pdbnonmatch_dir='pdb_nonmatch'):
-        """Write mapped pdb to working folder, by default 'pdb'
+        """Write mapped pdb to working folder, by default 'pdb'.
 
         Args:
-            pdbpssm_dir (str): directory name where mapped pdb and pssm are stored
-            pdbnonmatch_dir (str): directory where backup original pdb files
+            pdbpssm_dir (str, optional): path of mapped pssm files.
+                Defaults to 'pssm'.
+            pdb_dir (str, optional): output path of mapped pdb files.
+                Defaults to 'pdb'.
+            pdbnonmatch_dir (str, optional): output path of nonconsistent pdb files.
+                Defaults to 'pdb_nonmatch'.
         """
-
         pdbpssm_dir = os.path.join(self.work_dir, pdbpssm_dir)
         pdbnonmatch_dir = os.path.join(self.work_dir, pdbnonmatch_dir)
 

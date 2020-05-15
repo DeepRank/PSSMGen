@@ -115,14 +115,14 @@ def get_pssm(fpssm):
             line = line.strip()
             # only select lines that contain pssm values
             if line.startswith(rule):
-                    # TODO parse pssm based on column index
-                    # normal PSSM line have 44 columns. Abnormal <44 due to lakcing of gap between numbers.
+                # TODO parse pssm based on column index
+                # normal PSSM line have 44 columns.
+                # Abnormal <44 due to lakcing of gap between numbers.
                 if len(line.split()) == 44:
                     pssm.append(line.split())
                 else:
                     raise ValueError(
                         "Wrong format of the following line in PSSM file {}:\n{}".format(fpssm, line_raw))
-
     return pssm
 
 
@@ -139,8 +139,8 @@ def get_aligned_sequences(seq1, seq2):
         seq2 {str} -- 2nd sequence.
 
     Returns:
-        [numpy array] -- seq1_ali, aligned sequence for seq1
-        [numpy array] -- seq2_ali, aligned sequence for seq1
+        numpy array -- seq1_ali, aligned sequence for seq1
+        numpy array -- seq2_ali, aligned sequence for seq1
     """
 
     ali = pairwise2.align.globalxs(seq1, seq2, -2, -1)
@@ -248,7 +248,9 @@ def write_mapped_pssm_pdb(fpssm, fpdb, chainID, outdir):
 
     # add the residue number and name of PDB file to the mapped pssm
     # for pssm content, only keep the scoring matrix and information content
-    header = ["pdbresi", "pdbresn", "seqresi", "seqresn", "A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V", "IC"]
+    header = ["pdbresi", "pdbresn", "seqresi", "seqresn", "A", "R", "N",
+             "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P",
+              "S", "T", "W", "Y", "V", "IC"]
     header = np.transpose(np.array([[i] for i in header]))
     pdb_resn = [[i] for i in pdb_resn]
     pdb_seq = [[i] for i in pdb_seq]

@@ -336,4 +336,4 @@ class PSSM():
                             os.remove(pdb_new)
                         f.write('END\n')
             print('Inconsistent raw PDB files moved to {pdbnonmatch_dir}')
-            print('Mapped PDB files generated in {pdbpssm_dir}.\n')
+            print('Mapped PDB files generated in {pdb_dir}.\n')

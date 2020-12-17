@@ -10,6 +10,7 @@
 | &nbsp;                                                                          | [![PyPI](https://img.shields.io/pypi/v/pssmgen)](https://pypi.org/project/pssmgen/) |
 | [4. Enable Citation](https://fair-software.nl/recommendations/citation)         | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3635711.svg)](https://doi.org/10.5281/zenodo.3635711) |
 | [5. Code Quality Checklist](https://fair-software.nl/recommendations/checklist) | [![CII best practices](https://bestpractices.coreinfrastructure.org/projects/3759/badge)](https://bestpractices.coreinfrastructure.org/projects/3759) |
+| Code Analysis                                                                   | [![Codacy Badge](https://app.codacy.com/project/badge/Grade/0fa16bbe7f104c9791dfbdfdd1744227)](https://www.codacy.com/gh/DeepRank/PSSMGen/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=DeepRank/PSSMGen&amp;utm_campaign=Badge_Grade)
 
 <!--
 

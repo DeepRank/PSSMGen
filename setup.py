@@ -28,7 +28,7 @@ setup(
         'numpy >= 1.13',
         'scipy',
         'biopython',
-        'pdb2sql'],
+        'pdb2sql >= 0.5'],
 
     extras_require= {
         'test': ['nose', 'coverage', 'pytest',

@@ -26,7 +26,7 @@ jobs:
         if [[ $v != ${{ github.event.inputs.version }} ]]; then
           echo "Package version $v is not same as input version ${{ github.event.inputs.version }}."
           echo "Update package version, tag the commit and rerun this workflow."
-          exit
+          exit 1
         fi
     - name: Install pypa/build
       run: >-

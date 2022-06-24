@@ -21,7 +21,7 @@ jobs:
       with:
         python-version: '3.9'
     - name: Check distribution version
-      run: >-
+      run: |
         v=$(python setup.py --version)
         if [[ $v != ${{ github.event.inputs.version }} ]]; then
           echo "Package version $v is not same as input version ${{ github.event.inputs.version }}."

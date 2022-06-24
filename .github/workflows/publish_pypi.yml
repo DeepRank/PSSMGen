@@ -20,6 +20,14 @@ jobs:
     - uses: actions/setup-python@v3
       with:
         python-version: '3.9'
+    - name: Check distribution version
+      run: >-
+        v=$(python setup.py --version)
+        if [[ $v != ${{ github.event.inputs.version }} ]]; then
+          echo "Package version $v is not same as input version ${{ github.event.inputs.version }}."
+          echo "Update package version, tag the commit and rerun this workflow."
+          exit
+        fi
     - name: Install pypa/build
       run: >-
         python -m

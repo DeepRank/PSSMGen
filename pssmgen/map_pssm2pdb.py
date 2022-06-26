@@ -22,6 +22,10 @@ USAGE = __doc__.format(__author__, __email__)
 
 logger = logging.getLogger()
 
+def check_ok(args):
+    if len(args) != 0:
+        print("ok")
+
 def check_input(args):
     """Validate user input
 

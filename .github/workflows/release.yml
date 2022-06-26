@@ -11,4 +11,3 @@ jobs:
         with:
           default-branch: release-try
           release-type: python
-          version-file: pssmgen/__version__.py

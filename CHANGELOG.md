@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0](https://github.com/DeepRank/PSSMGen/compare/v0.2.0...v0.3.0) (2022-06-26)
+
+
+### Features
+
+* **setup:** add setup config ([8e73be2](https://github.com/DeepRank/PSSMGen/commit/8e73be2c8730e0ad10a7eb28dee44e6f765636d4))
+* **src:** add argument check method ([2d4698d](https://github.com/DeepRank/PSSMGen/commit/2d4698d1429d8285ea2c12d84e61f1823cd37037))
+
+
+### Bug Fixes
+
+* **src:** update docstring ([dc50c79](https://github.com/DeepRank/PSSMGen/commit/dc50c794e13c8c7cfeb81e8b4929a7ba2ec29b74))
+
 ## [0.2.0](https://github.com/DeepRank/PSSMGen/compare/0.1.2...v0.2.0) (2022-06-26)
 
 

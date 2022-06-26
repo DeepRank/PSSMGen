@@ -1,0 +1,14 @@
+on:
+  push:
+    branches:
+      - release-try
+name: release-please
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        with:
+          default-branch: release-try
+          release-type: python
+          version-file: pssmgen/__version__.py

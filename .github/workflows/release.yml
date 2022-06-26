@@ -11,3 +11,4 @@ jobs:
         with:
           default-branch: release-try
           release-type: python
+          command: release-pr

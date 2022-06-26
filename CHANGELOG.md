@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/DeepRank/PSSMGen/compare/v0.3.0...v0.3.1) (2022-06-26)
+
+
+### Bug Fixes
+
+* **version:** add version.py ([ad0bb1b](https://github.com/DeepRank/PSSMGen/commit/ad0bb1b3b63b2748ced2953561225342c12d553b))
+
 ## [0.3.0](https://github.com/DeepRank/PSSMGen/compare/v0.2.0...v0.3.0) (2022-06-26)
 
 

@@ -19,6 +19,7 @@ class PSSM():
             work_dir (str, optional): the working directory that contains the
                 pdb directory and/or fasta directory.
                 Defaults to '.'.
+        Notes: this is a try
         """
 
         self.work_dir = work_dir
